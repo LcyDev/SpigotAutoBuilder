@@ -1,5 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
+TITLE AutoBuilder v3.2.6
 call :setESC
 call :CONFIG
 call :SCRIPT
@@ -7,6 +8,10 @@ goto START
 
 
 :CONFIG
+::##########################
+:: Prevent compiling.
+SET DEBUG=FALSE
+
 :: Java 16-17 or higher is required
 :: Recommended Java 16 as for now (1.17+)
 SET JDK17="C:\Program Files\EclipseAdoptium\jdk-16.0.2.7-openj9\bin\java.exe"
@@ -20,12 +25,18 @@ SET JDK11="C:\Program Files\EclipseAdoptium\jre-11.0.13.8-hotspot\bin\java.exe"
 :: Recommended Java 8 (1.8-1.12.2)
 SET JDK8="C:\Program Files\EclipseAdoptium\jre-8.0.312.7-hotspot\bin\java.exe"
 
-SET OUTPUT="./product"
+:: Output folder path.
+SET "OUTPUT=./product"
+
+:: Compile Craftbukkit?
 SET CRAFTBUKKIT=TRUE
+:: Compile Spigot?
 SET SPIGOT=TRUE
 
-SET 1.17.1=TRUE
-SET 1.17=false
+::##########################
+
+SET 1.17.1=false
+SET 1.17=TRUE
 ::
 SET 1.16.5=TRUE
 SET 1.16.4=false
@@ -70,7 +81,14 @@ SET 1.8.5=false
 SET 1.8.4=false
 SET 1.8.3=false
 SET 1.8=false
+
+::##########################
+
+:::: END CONFIGURATION -- DON'T TOUCH ANYTHING BELOW THIS LINE!
 goto :eof
+
+
+
 
 :SCRIPT
 ECHO.
@@ -148,15 +166,14 @@ if /I "%SPIGOT%"=="false" (
 )
 goto :eof
 
-
 ::
 :: Promt the user to start building.
 ::
 :START
 ECHO %ESC%[1m%ESC%[33m[%name%-BUILDTOOLS 1.8-1.18 DOWNLODER]%ESC%[0m
 ECHO.
-ECHO %ESC%[36mBuild the %package% jars 1.8-1.17^?%ESC%[0m
-ECHO %ESC%[91mValid: Yes or No%ESC%[0m
+ECHO %ESC%[36mBuild the %package% jars ^?%ESC%[0m
+ECHO %ESC%[91mValid: Yes or No ^| Custom %ESC%[0m
 ECHO.
 set /p input="%ESC%[31m>> %ESC%[0m"
  if "%input%"=="" (
@@ -165,10 +182,11 @@ set /p input="%ESC%[31m>> %ESC%[0m"
 	ECHO %ESC%[91mUnknown option.%ESC%[0m
 	ECHO.
 	ECHO.
-	goto :START
+	goto START
  )
  if /i "%input%"=="yes" goto COMPILER
  if /i "%input%"=="no" goto EXIT
+ if /i "%input%"=="custom" ( goto CUSTOM )
 	ECHO.
 	ECHO.
 	ECHO %ESC%[91mUnknown option.%ESC%[0m
@@ -176,48 +194,71 @@ set /p input="%ESC%[31m>> %ESC%[0m"
 	ECHO.
 goto START
 
+
+:CUSTOM
+	ECHO.
+	ECHO Insert a valid spigot build to compile.
+	ECHO https://hub.spigotmc.org/versions/
+	ECHO.
+	set /p input1="%ESC%[31m>> %ESC%[0m"
+	SET build=%input1%
+	echo %build%
+	ECHO.
+	
+	ECHO Insert which JDK to use.
+	ECHO JDK17, JDK16, JDK11, JDK8 ^(See :CONFIG^)
+	ECHO.
+	set /p input2="%ESC%[31m>> %ESC%[0m"
+	SET MYJDK=!%input2%!
+	ECHO.
+	ECHO. %ESC%[92mDONE. Now select yes in menu.
+	ECHO.
+	set CUSTOM=true
+	GOTO START
+
 ::
 :: Manages version compiling.
 ::
 :COMPILER
-if /I "!1.17.1!"=="true" ( set version=1.17.1 & set JAVA=%JDK17% & call :DETECT )
-if /I "!1.17!"=="true" ( set version=1.17 & set JAVA=%JDK17% & call :DETECT )
-if /I "!1.16.5!"=="true" ( set version=1.16.5 & set JAVA=%JDK16% & call :DETECT )
-if /I "!1.16.4!"=="true" ( set version=1.16.4 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.16.3!"=="true" ( set version=1.16.3 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.16.2!"=="true" ( set version=1.16.2 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.16.1!"=="true" ( set version=1.16.1 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.16!"=="true" ( set version=1.16 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.15.2!"=="true" ( set version=1.15.2 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.15.1!"=="true" ( set version=1.15.1 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.15!"=="true" ( set version=1.15 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.14.4!"=="true" ( set version=1.14.4 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.14.3!"=="true" ( set version=1.14.3 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.14.2!"=="true" ( set version=1.14.2 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.14.1!"=="true" ( set version=1.14.1 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.14!"=="true" ( set version=1.14 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.13.2!"=="true" ( set version=1.13.2 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.13.1!"=="true" ( set version=1.13.1 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.13!"=="true" ( set version=1.13 & set JAVA=%JDK11% & call :DETECT )
-if /I "!1.12.2!"=="true" ( set version=1.12.2 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.12.1!"=="true" ( set version=1.12.1 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.12!"=="true" ( set version=1.12 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.11.2!"=="true" ( set version=1.11.2 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.11.1!"=="true" ( set version=1.11.1 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.11!"=="true" ( set version=1.11 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.10.2!"=="true" ( set version=1.10.2 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.10!"=="true" ( set version=1.10 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.9.4!"=="true" ( set version=1.9.4 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.9.2!"=="true" ( set version=1.9.2 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.9!"=="true" ( set version=1.9 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.9.4!"=="true" ( set version=1.9.4 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.8.8!"=="true" ( set version=1.8.8 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.8.7!"=="true" ( set version=1.8.7 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.8.6!"=="true" ( set version=1.8.6 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.8.5!"=="true" ( set version=1.8.5 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.8.4!"=="true" ( set version=1.8.4 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.8.3!"=="true" ( set version=1.8.3 & set JAVA=%JDK8% & call :DETECT )
-if /I "!1.8!"=="true" ( set version=1.8 & set JAVA=%JDK8% & call :DETECT )
+if /I "!CUSTOM!"=="true" ( set "version=%build%" & set "JAVA=%MYJDK%" & call :DETECT )
+if /I "!1.17.1!"=="true" ( set "version=1.17.1" & set "JAVA=%JDK17%" & call :DETECT )
+if /I "!1.17!"=="true" ( set "version=1.17" & set "JAVA=%JDK17%" & call :DETECT )
+if /I "!1.16.5!"=="true" ( set "version=1.16.5" & set "JAVA=%JDK16%" & call :DETECT )
+if /I "!1.16.4!"=="true" ( set "version=1.16.4" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.16.3!"=="true" ( set "version=1.16.3" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.16.2!"=="true" ( set "version=1.16.2" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.16.1!"=="true" ( set "version=1.16.1" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.16!"=="true" ( set "version=1.16" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.15.2!"=="true" ( set "version=1.15.2" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.15.1!"=="true" ( set "version=1.15.1" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.15!"=="true" ( set "version=1.15" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.14.4!"=="true" ( set "version=1.14.4" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.14.3!"=="true" ( set "version=1.14.3" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.14.2!"=="true" ( set "version=1.14.2" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.14.1!"=="true" ( set "version=1.14.1" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.14!"=="true" ( set "version=1.14" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.13.2!"=="true" ( set "version=1.13.2" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.13.1!"=="true" ( set "version=1.13.1" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.13!"=="true" ( set "version=1.13" & set "JAVA=%JDK11%" & call :DETECT )
+if /I "!1.12.2!"=="true" ( set "version=1.12.2" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.12.1!"=="true" ( set "version=1.12.1" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.12!"=="true" ( set "version=1.12" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.11.2!"=="true" ( set "version=1.11.2" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.11.1!"=="true" ( set "version=1.11.1" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.11!"=="true" ( set "version=1.11" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.10.2!"=="true" ( set "version=1.10.2" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.10!"=="true" ( set "version=1.10" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.9.4!"=="true" ( set "version=1.9.4" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.9.2!"=="true" ( set "version=1.9.2" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.9!"=="true" ( set "version=1.9" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.9.4!"=="true" ( set "version=1.9.4" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.8.8!"=="true" ( set "version=1.8.8" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.8.7!"=="true" ( set "version=1.8.7" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.8.6!"=="true" ( set "version=1.8.6" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.8.5!"=="true" ( set "version=1.8.5" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.8.4!"=="true" ( set "version=1.8.4" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.8.3!"=="true" ( set "version=1.8.3" & set "JAVA=%JDK8%" & call :DETECT )
+if /I "!1.8!"=="true" ( set "version=1.8" & set "JAVA=%JDK8%" & call :DETECT )
 if '%errorlevel%' == '0' ( goto FINISH ) else ( goto CRASH )
 
 ::
@@ -228,10 +269,11 @@ if '%errorlevel%' == '0' ( goto FINISH ) else ( goto CRASH )
 if "%file%"=="both" (
 	if exist "%output%/spigot-%version%.jar" (
 		if exist "%output%/craftbukkit-%version%.jar" (
-			set final=both
+			set skipfinal=both
 			call :skip
 			goto :eof
 		) else (
+			set skipfinal=Spigot
 			set final=CraftBukkit
 			set artifact=--compile craftbukkit
 			call :skip
@@ -241,10 +283,11 @@ if "%file%"=="both" (
 	)
 	if exist "%output%/craftbukkit-%version%.jar" (
 		if exist "%output%/spigot-%version%.jar" (
-			set final=both
+			set skipfinal=both
 			call :skip
 			goto :eof
 		) else (
+			set skipfinal=CraftBukkit
 			set final=Spigot
 			set artifact=--compile spigot
 			call :skip
@@ -252,14 +295,14 @@ if "%file%"=="both" (
 			goto :eof
 		)
 	) else (
-		set final=%name%
+		set "final=%name%"
 		set artifact=--compile spigot --compile craftbukkit
 		call :build
 		goto :eof
 	)
 ) else (
 	if exist "%output%/%file%-%version%.jar" (
-		set final=%name%
+		set skipfinal=%name%
 		call :skip
 		goto :eof
 	) else (
@@ -275,14 +318,14 @@ goto :eof
 :: Automatically sort the skipping build message.
 ::
 :SKIP
-if "%final%"=="both" (
+if "%skipfinal%"=="both" (
 	ECHO.
-	ECHO %ESC%[91m %name% %version% already built, skipping ...%ESC%[0m%ESC%[0m
+	ECHO %ESC%[91m %name% %version% already builded, skipping ...%ESC%[0m%ESC%[0m
 	ECHO.
 	goto :eof
 ) else (
 	ECHO.
-	ECHO %ESC%[91m %final% %version% already builded, skipping ...%ESC%[0m%ESC%[0m
+	ECHO %ESC%[91m %skipfinal% %version% already built, skipping ...%ESC%[0m%ESC%[0m
 	ECHO.
 	goto :eof
 )
@@ -294,11 +337,11 @@ goto :eof
 :BUILD
 	ECHO %ESC%[40;37m
 	ECHO.
-	ECHO %ESC%[92m Building %name% %version% ...%ESC%[0m
-	SET "RUN=%JAVA%-jar BuildTools.jar --rev %version%%artifact% --output-dir %OUTPUT%"
+	ECHO %ESC%[92m Building %final% %version% ...%ESC%[0m
+	SET "RUN=%JAVA% -jar BuildTools.jar --rev %version% %artifact% --output-dir "%OUTPUT%""
 	ECHO %ESC%[46;30m
 	ECHO CMD: %RUN%
-	%RUN%
+	if /I "%DEBUG%"=="false" ( %RUN% )
 	ECHO.
 	ECHO %ESC%[40;37m
 if not '%errorlevel%' == '0' (
