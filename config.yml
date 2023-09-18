@@ -1,0 +1,24 @@
+debug: true
+output: "./product"
+
+java:
+  # (1.17+)
+  JDK17: ""
+  # (1.16.5)
+  JDK16: "java"
+  # (1.13-1.16.4)
+  JDK11: ""
+  # (1.8-1.12.2)
+  JDK8: ""
+
+# The versions you want to compile
+# https://hub.spigotmc.org/versions/
+versions: ['1.8', '1.12-1.16', '1.18.X']
+
+# https://www.spigotmc.org/wiki/buildtools/#flags
+build:
+  mappings: true
+  craftbukkit: true
+  spigot: true
+  flags: []
+  jvm_flags: []
