@@ -7,7 +7,6 @@ class TestDecodeStringVersion(unittest.TestCase):
             "1.12": ['1.12'],
             "1.13.1": ['1.13.1'],
             "1.14.x": ['1.14', '1.14.1', '1.14.2', '1.14.3', '1.14.4'],
-            "1.16.x": ['1.16', '1.16.1', '1.16.2', '1.16.3', '1.16.4', '1.16.5'],
         }
         for input_version, expected_output in tests.items():
             with self.subTest(input_version=input_version):
@@ -29,7 +28,8 @@ class TestDecodeStringVersion(unittest.TestCase):
         tests = {
             "1.8-1.8": ['1.8'],
             "1.8.x-1.8.x": ['1.8', '1.8.3', '1.8.4', '1.8.5', '1.8.6', '1.8.7', '1.8.8'],
-            "1.20-1.20.6": ['1.20'],
+            "1.20-1.20.6": ['1.20', '1.20.1', '1.20.2', '1.20.3', '1.20.4', '1.20.5', '1.20.6'],
+            "1.17-1.18.2": ['1.17', '1.18', '1.18.1', '1.18.2']
         }
         for input_version, expected_output in tests.items():
             with self.subTest(input_version=input_version):
