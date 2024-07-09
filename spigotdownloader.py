@@ -1,6 +1,6 @@
 import yaml, requests, subprocess, os
 
-import versions
+from src import versions
 
 def load_config(filename: str):
     with open(filename, 'r') as yaml_file:
